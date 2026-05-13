@@ -1,6 +1,6 @@
 # 📊 亚马逊美国站假发/美妆类目运营日报工具
 
-定时推送监控结果的小工具，每日生成亚马逊市场动态报告。
+定时推送监控结果的小工具，每日生成亚马逊市场动态报告，支持飞书Webhook推送和邮件发送。
 
 ## 🚀 快速开始
 
@@ -10,7 +10,26 @@ cd /workspace
 python amazon_daily_report.py
 ```
 
-### 2. 查看生成的日报
+### 2. 生成日报并推送到飞书
+```bash
+# 使用配置文件中的Webhook URL
+python amazon_daily_report.py --feishu
+
+# 或使用命令行指定Webhook URL
+python amazon_daily_report.py --feishu --webhook https://open.feishu.cn/open-apis/bot/v2/hook/xxx
+```
+
+### 3. 生成日报并发送邮件
+```bash
+python amazon_daily_report.py --email
+```
+
+### 4. 同时推送飞书和邮件
+```bash
+python amazon_daily_report.py --feishu --email
+```
+
+### 5. 查看生成的日报
 日报会自动保存为 `amazon_daily_report.md` 文件。
 
 ## 📋 功能特性
@@ -19,6 +38,8 @@ python amazon_daily_report.py
 - ✅ **面向假发/美妆类目**：针对性的运营建议
 - ✅ **高优先级警示**：用颜色标注重要变动
 - ✅ **今日行动项**：直接指导运营决策
+- ✅ **飞书推送**：通过Webhook推送至飞书群聊
+- ✅ **邮件发送**：支持SMTP邮件发送
 - ✅ **可扩展架构**：支持接入真实数据源
 
 ## ⏰ 设置定时任务（Cron）
@@ -30,9 +51,15 @@ python amazon_daily_report.py
 crontab -e
 ```
 
-添加以下内容（每日9:30执行）：
+添加以下内容（每日9:30执行，同时推送到飞书）：
 ```
-30 9 * * * cd /workspace && /usr/bin/python3 /workspace/amazon_daily_report.py >> /workspace/daily_report.log 2>&1
+30 9 * * * cd /workspace && /usr/bin/python3 /workspace/amazon_daily_report.py --feishu >> /workspace/daily_report.log 2>&1
+```
+
+### 方法二：使用设置脚本
+```bash
+cd /workspace
+./setup_daily_job.sh
 ```
 
 ### 验证任务
@@ -45,38 +72,51 @@ crontab -l
 tail -f /workspace/daily_report.log
 ```
 
+## 🔧 配置说明
+
+### 配置文件
+
+编辑 `report_config.json` 文件：
+
+```json
+{
+  "feishu_webhook_url": "https://open.feishu.cn/open-apis/bot/v2/hook/your-webhook-token",
+  "email": {
+    "smtp_server": "smtp.feishu.cn",
+    "smtp_port": 587,
+    "smtp_user": "your-email@your-domain.com",
+    "smtp_password": "your-app-password",
+    "sender_email": "your-email@your-domain.com",
+    "receiver_emails": ["recipient1@example.com", "recipient2@example.com"]
+  }
+}
+```
+
+### 飞书Webhook配置
+
+1. 在飞书群聊中添加「自定义机器人」
+2. 获取Webhook URL
+3. 将URL填入配置文件
+
+### 邮件配置
+
+支持飞书邮箱、QQ邮箱、Gmail等：
+
+- **飞书邮箱**：smtp.feishu.cn:587
+- **QQ邮箱**：smtp.qq.com:587（使用授权码）
+- **Gmail**：smtp.gmail.com:587（使用App Password）
+
 ## 📁 项目结构
 
 ```
 /workspace/
-├── amazon_daily_report.py   # 主程序
+├── amazon_daily_report.py   # 主程序（含飞书推送和邮件发送）
 ├── amazon_daily_report.md   # 生成的日报（每日更新）
+├── report_config.json       # 配置文件（飞书、邮箱设置）
+├── setup_daily_job.sh       # 定时任务设置脚本
+├── setup_cron.py            # Python版定时任务配置
 ├── README.md                # 说明文档
 └── daily_report.log         # 运行日志
-```
-
-## 🔧 自定义配置
-
-### 1. 修改推送时间
-在Cron配置中调整时间：
-- `30 9 * * *` = 每天9:30
-- `0 8 * * 1-5` = 工作日8:00
-
-### 2. 修改数据源
-编辑 `get_sample_market_updates()` 函数，接入：
-- 网络爬虫
-- Amazon Seller API
-- RSS订阅源
-- 自定义数据源
-
-### 3. 接入飞书机器人推送
-可扩展代码，通过飞书Webhook API将日报推送到群聊：
-```python
-import requests
-
-def send_to_feishu(content: str, webhook_url: str):
-    data = {"msg_type": "text", "content": {"text": content}}
-    requests.post(webhook_url, json=data)
 ```
 
 ## 📊 日报模块说明
@@ -95,6 +135,7 @@ def send_to_feishu(content: str, webhook_url: str):
 
 ## 📝 更新日志
 
+- **2026-05-13**：添加飞书Webhook推送和邮件发送功能
 - **2026-05-13**：初始版本发布，支持基础日报生成
 
 ## 🤝 贡献

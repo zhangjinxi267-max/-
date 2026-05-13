@@ -2,17 +2,47 @@
 """
 亚马逊美国站假发/美妆类目运营日报生成器
 每日自动推送最新市场动态和规则更新
+支持飞书Webhook推送和邮件发送
 """
 
 import json
 import datetime
-from typing import Dict, List, Any
+import requests
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.header import Header
+from typing import Dict, List, Any, Optional
 
 
 class AmazonDailyReport:
     def __init__(self):
         self.date = datetime.datetime.now().strftime("%Y年%m月%d日")
         self.report = {}
+        self.config = self._load_config()
+
+    def _load_config(self) -> Dict[str, Any]:
+        """加载配置文件"""
+        config_path = '/workspace/report_config.json'
+        default_config = {
+            "feishu_webhook_url": "",
+            "email": {
+                "smtp_server": "smtp.example.com",
+                "smtp_port": 587,
+                "smtp_user": "",
+                "smtp_password": "",
+                "sender_email": "",
+                "receiver_emails": []
+            }
+        }
+        
+        try:
+            with open(config_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except FileNotFoundError:
+            with open(config_path, 'w', encoding='utf-8') as f:
+                json.dump(default_config, f, indent=2, ensure_ascii=False)
+            return default_config
 
     def generate_report(self, market_updates: Dict[str, Any]) -> str:
         """生成完整的日报内容"""
@@ -62,11 +92,120 @@ class AmazonDailyReport:
         
         return markdown
 
+    def generate_text_report(self, market_updates: Dict[str, Any]) -> str:
+        """生成纯文本格式的日报（用于邮件和飞书推送）"""
+        text = f"📊 亚马逊美国站假发/美妆类目运营日报\n"
+        text += f"日期：{self.date}\n"
+        text += "="*50 + "\n\n"
+        
+        text += "1️⃣ 【平台规则与政策变动】\n"
+        text += "🔴 高优先级变动：\n"
+        for update in market_updates.get("high_priority_changes", []):
+            text += f"  - {update['content']}\n"
+            text += f"    来源：{update['source']} | 生效时间：{update['effective_date']}\n"
+            text += f"    影响：{update['impact']}\n"
+        
+        text += "\n🟡 中优先级变动：\n"
+        for update in market_updates.get("medium_priority_changes", []):
+            text += f"  - {update['title']}：{update['description']}\n"
+        
+        text += "\n" + "="*50 + "\n\n"
+        text += "2️⃣ 【亚马逊活动与促销信息】\n"
+        
+        text += "🎉 当前进行中活动：\n"
+        for event in market_updates.get("ongoing_events", []):
+            text += f"  - {event['name']}（{event['time']}）\n"
+            text += f"    参与机会：{event['opportunity']}\n"
+        
+        text += "\n📅 即将到来活动：\n"
+        for event in market_updates.get("upcoming_events", []):
+            text += f"  - {event['name']}（{event['time']}）\n"
+            text += f"    截止/入仓：{event['deadline']}\n"
+            text += f"    运营建议：{event['recommendation']}\n"
+        
+        text += "\n" + "="*50 + "\n\n"
+        text += "3️⃣ 【美国市场与消费节点】\n"
+        
+        text += "📅 未来30天重要节日：\n"
+        for holiday in market_updates.get("holidays", []):
+            text += f"  - {holiday['date']} {holiday['name']}：{holiday['opportunity']}\n"
+        
+        text += "\n📈 消费趋势：\n"
+        for trend in market_updates.get("trends", []):
+            text += f"  - {trend}\n"
+        
+        text += "\n" + "="*50 + "\n\n"
+        text += "✅ 【今日关键行动项】\n"
+        for i, action in enumerate(market_updates.get("action_items", []), 1):
+            text += f"{i}. {action['title']}：{action['description']}\n"
+        
+        text += "\n" + "="*50 + "\n"
+        text += "以上信息仅供参考，请以Amazon Seller Central官方通知为准。"
+        
+        return text
+
     def save_report(self, content: str, filename: str = "amazon_daily_report.md"):
         """保存日报到文件"""
         with open(filename, 'w', encoding='utf-8') as f:
             f.write(content)
         print(f"✅ 日报已保存至 {filename}")
+
+    def send_to_feishu(self, content: str, webhook_url: Optional[str] = None) -> bool:
+        """通过飞书Webhook推送日报"""
+        url = webhook_url or self.config.get("feishu_webhook_url", "")
+        
+        if not url:
+            print("❌ 飞书Webhook URL未配置，请在report_config.json中设置")
+            return False
+        
+        try:
+            data = {
+                "msg_type": "text",
+                "content": {
+                    "text": content
+                }
+            }
+            response = requests.post(url, json=data, timeout=10)
+            response.raise_for_status()
+            print("✅ 飞书消息推送成功！")
+            return True
+        except Exception as e:
+            print(f"❌ 飞书消息推送失败：{str(e)}")
+            return False
+
+    def send_email(self, content: str, subject: Optional[str] = None) -> bool:
+        """发送邮件日报"""
+        email_config = self.config.get("email", {})
+        
+        smtp_server = email_config.get("smtp_server", "")
+        smtp_port = email_config.get("smtp_port", 587)
+        smtp_user = email_config.get("smtp_user", "")
+        smtp_password = email_config.get("smtp_password", "")
+        sender_email = email_config.get("sender_email", "")
+        receiver_emails = email_config.get("receiver_emails", [])
+        
+        if not all([smtp_server, smtp_user, smtp_password, sender_email, receiver_emails]):
+            print("❌ 邮件配置不完整，请在report_config.json中设置")
+            return False
+        
+        try:
+            msg = MIMEMultipart()
+            msg['From'] = Header(sender_email, 'utf-8')
+            msg['To'] = Header(",".join(receiver_emails), 'utf-8')
+            msg['Subject'] = Header(subject or f"【亚马逊运营日报】{self.date}", 'utf-8')
+            
+            msg.attach(MIMEText(content, 'plain', 'utf-8'))
+            
+            with smtplib.SMTP(smtp_server, smtp_port) as server:
+                server.starttls()
+                server.login(smtp_user, smtp_password)
+                server.sendmail(sender_email, receiver_emails, msg.as_string())
+            
+            print("✅ 邮件发送成功！")
+            return True
+        except Exception as e:
+            print(f"❌ 邮件发送失败：{str(e)}")
+            return False
 
 
 def get_sample_market_updates() -> Dict[str, Any]:
@@ -152,14 +291,37 @@ def get_sample_market_updates() -> Dict[str, Any]:
 
 
 if __name__ == "__main__":
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='亚马逊运营日报生成器')
+    parser.add_argument('--feishu', action='store_true', help='发送到飞书')
+    parser.add_argument('--email', action='store_true', help='发送邮件')
+    parser.add_argument('--webhook', type=str, help='飞书Webhook URL（优先使用命令行参数）')
+    args = parser.parse_args()
+    
     print("🚀 正在生成亚马逊市场运营日报...")
     
     report_generator = AmazonDailyReport()
     market_updates = get_sample_market_updates()
-    report_content = report_generator.generate_report(market_updates)
-    report_generator.save_report(report_content)
     
+    # 生成Markdown格式（保存文件）
+    markdown_content = report_generator.generate_report(market_updates)
+    report_generator.save_report(markdown_content)
+    
+    # 生成文本格式（用于推送）
+    text_content = report_generator.generate_text_report(market_updates)
+    
+    # 输出日报内容
     print("\n" + "="*60)
-    print(report_content)
+    print(text_content)
     print("="*60)
+    
+    # 发送到飞书
+    if args.feishu:
+        report_generator.send_to_feishu(text_content, args.webhook)
+    
+    # 发送邮件
+    if args.email:
+        report_generator.send_email(text_content)
+    
     print("\n✅ 日报生成完成！")

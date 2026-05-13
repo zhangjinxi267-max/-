@@ -1,0 +1,11 @@
+{
+  "feishu_webhook_url": "https://open.feishu.cn/open-apis/bot/v2/hook/your-webhook-token",
+  "email": {
+    "smtp_server": "smtp.feishu.cn",
+    "smtp_port": 587,
+    "smtp_user": "your-email@your-domain.com",
+    "smtp_password": "your-app-password",
+    "sender_email": "your-email@your-domain.com",
+    "receiver_emails": ["recipient1@example.com", "recipient2@example.com"]
+  }
+}
