@@ -1,5 +1,5 @@
 {
-  "feishu_webhook_url": "https://open.feishu.cn/open-apis/bot/v2/hook/b0fd5d4e-c673-45ab-8cb4-1ea7645c202b",
+  "feishu_webhook_url": "https://open.feishu.cn/open-apis/bot/v2/hook/a4fd940c-2d0f-430b-9a40-613457f14c67",
   "email": {
     "smtp_server": "smtp.feishu.cn",
     "smtp_port": 587,
