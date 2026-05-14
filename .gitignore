@@ -1,0 +1,26 @@
+# Environment variables
+.env
+
+# Uploaded videos log
+uploaded_videos.txt
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+
+# Instagrapi
+settings.json
+dump.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
