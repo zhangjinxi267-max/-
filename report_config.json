@@ -1,0 +1,6 @@
+{
+  "feishu_webhook": "https://open.feishu.cn/open-apis/bot/v2/hook/YOUR_WEBHOOK_URL_HERE",
+  "report_title": "亚马逊日报",
+  "report_format": "markdown",
+  "enable_notifications": true
+}
