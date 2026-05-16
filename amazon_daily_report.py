@@ -213,16 +213,16 @@ def get_sample_market_updates() -> Dict[str, Any]:
     return {
         "high_priority_changes": [
             {
+                "content": "【重要】亚马逊关停Rufus AI购物助手，推出Alexa for Shopping",
+                "source": "亚马逊官方公告（2026年5月13日）",
+                "effective_date": "2026年5月13日生效",
+                "impact": "独立Rufus正式关停，整合Rufus和Alexa+的新一代AI购物助手上线。搜索结果顶部将出现AI生成内容，可能影响自然搜索点击率。建议关注商品详情页优化和AI对话场景下的产品展示"
+            },
+            {
                 "content": "FBA履约费用与商品价格挂钩",
                 "source": "Amazon FBA Fee Changes 2026",
                 "effective_date": "2026年1月15日已生效",
                 "impact": "假发类目平均客单价$30-50区间，履约费上涨6-8%，成本压力增大。建议优化定价策略"
-            },
-            {
-                "content": "Buy with Prime及多渠道履约附加费扩展",
-                "source": "5月新规",
-                "effective_date": "2026年5月2日",
-                "impact": "增加3.5%附加费，平均每件商品约增加$0.17。叠加超龄库存费后，综合成本可能上涨10%-15%"
             },
             {
                 "content": "价格抓取规则收紧",
