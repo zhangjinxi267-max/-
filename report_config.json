@@ -1,0 +1,7 @@
+{
+  "feishu_webhook_url": "https://open.feishu.cn/open-apis/bot/v2/hook/YOUR_HOOK_TOKEN",
+  "feishu_secret": "",
+  "report_title": "亚马逊运营日报",
+  "target_market": "US",
+  "categories": ["all"]
+}
