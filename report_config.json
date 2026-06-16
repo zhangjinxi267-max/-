@@ -1,0 +1,6 @@
+{
+  "webhook_url": "https://open.feishu.cn/open-apis/bot/v2/hook/your-webhook-id",
+  "chat_id": "oc_xxxxx",
+  "report_title": "亚马逊日报",
+  "sender_name": "亚马逊日报机器人"
+}
