@@ -1,0 +1,10 @@
+{
+  "feishu": {
+    "webhook_url": "https://open.feishu.cn/open-apis/bot/v2/hook/YOUR_WEBHOOK_TOKEN",
+    "secret": "YOUR_SECRET"
+  },
+  "report": {
+    "language": "zh-CN",
+    "timezone": "Asia/Shanghai"
+  }
+}
