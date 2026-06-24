@@ -1,7 +1,7 @@
 {
   "feishu": {
-    "webhook_url": "https://open.feishu.cn/open-apis/bot/v2/hook/YOUR_WEBHOOK_TOKEN",
-    "secret": "YOUR_SECRET"
+    "webhook_url": "https://open.feishu.cn/open-apis/bot/v2/hook/a4fd940c-2d0f-430b-9a40-613457f14c67",
+    "secret": ""
   },
   "report": {
     "language": "zh-CN",
