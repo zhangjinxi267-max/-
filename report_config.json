@@ -1,0 +1,7 @@
+{
+  "feishu_webhook_url": "https://open.feishu.cn/open-apis/bot/v2/hook/YOUR_WEBHOOK_TOKEN_HERE",
+  "feishu_secret": "",
+  "report_title": "亚马逊卖家日报",
+  "report_timezone": "Asia/Shanghai",
+  "marketplace": "US"
+}
