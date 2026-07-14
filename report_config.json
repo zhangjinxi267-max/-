@@ -1,0 +1,11 @@
+{
+    "feishu": {
+        "webhook_url": "https://open.feishu.cn/open-apis/bot/v2/hook/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "timeout": 10
+    },
+    "report": {
+        "title": "亚马逊运营日报",
+        "date_format": "%Y年%m月%d日",
+        "timezone": "Asia/Shanghai"
+    }
+}
